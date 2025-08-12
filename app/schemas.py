@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from fastapi import HTTPException
 
 
 class UserResponse(BaseModel):
@@ -7,6 +6,11 @@ class UserResponse(BaseModel):
     password: str
 
 
-class CustomException(HTTPException):
-    def __init__(self, detail: str, status_code: int):
-        super().__init__(status_code=status_code, detail=detail)
+class UserRequest(BaseModel):
+    message: str
+
+
+class TokenSent(BaseModel):
+    access_token: str
+    token_type: str
+    expires_in: int
