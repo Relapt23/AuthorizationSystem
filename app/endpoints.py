@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import UserInfo
-from app.schemas import UserResponse, UserRequest, TokenSent
+from app.schemas import UserResponse, UserRequest, LoginResponse
 from db.db_config import make_session
 from app.security import pwd_context, make_jwt_token
 
@@ -12,8 +12,8 @@ router = APIRouter()
 
 @router.post("/register")
 async def register(
-    user: UserResponse, session: AsyncSession = Depends(make_session)
-) -> UserRequest:
+    user: UserRequest, session: AsyncSession = Depends(make_session)
+) -> UserResponse:
     user_in_db = (
         await session.execute(select(UserInfo).where(UserInfo.login == user.login))
     ).scalar_one_or_none()
@@ -25,13 +25,13 @@ async def register(
     session.add(new_user)
     await session.commit()
 
-    return UserRequest(message="Success!")
+    return UserResponse(message="Success!")
 
 
 @router.post("/login")
 async def login(
-    user: UserResponse, session: AsyncSession = Depends(make_session)
-) -> TokenSent:
+    user: UserRequest, session: AsyncSession = Depends(make_session)
+) -> LoginResponse:
     user_in_db = (
         await session.execute(select(UserInfo).where(UserInfo.login == user.login))
     ).scalar_one_or_none()
@@ -41,4 +41,4 @@ async def login(
 
     token = make_jwt_token(user.login)
 
-    return TokenSent(access_token=token, token_type="bearer", expires_in=15 * 60)
+    return LoginResponse(access_token=token, token_type="bearer", expires_in=15 * 60)

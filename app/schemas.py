@@ -1,16 +1,16 @@
 from pydantic import BaseModel, EmailStr
 
 
-class UserResponse(BaseModel):
+class UserRequest(BaseModel):
     login: EmailStr
     password: str
 
 
-class UserRequest(BaseModel):
+class UserResponse(BaseModel):
     message: str
 
 
-class TokenSent(BaseModel):
+class LoginResponse(BaseModel):
     access_token: str
     token_type: str
     expires_in: int
