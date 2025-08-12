@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from db.models import Base
+from src.db.models import Base
 import os
 
 

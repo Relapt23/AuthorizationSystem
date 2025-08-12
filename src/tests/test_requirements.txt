@@ -1,0 +1,7 @@
+pytest-asyncio
+pytest
+aiosqlite
+httpx
+greenlet
+passlib
+bcrypt

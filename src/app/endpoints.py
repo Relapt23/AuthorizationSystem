@@ -1,16 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from db.models import UserInfo
-from app.schemas import UserResponse, UserRequest, LoginResponse
-from db.db_config import make_session
-from app.security import pwd_context, make_jwt_token
+from src.db.models import UserInfo
+from src.app.schemas import UserResponse, UserRequest, LoginResponse
+from src.db.db_config import make_session
+from src.app.security import pwd_context, make_jwt_token
 
 router = APIRouter()
 
 
-@router.post("/register")
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(
     user: UserRequest, session: AsyncSession = Depends(make_session)
 ) -> UserResponse:
@@ -37,8 +37,9 @@ async def login(
     ).scalar_one_or_none()
 
     if not user_in_db or not pwd_context.verify(user.password, user_in_db.password):
-        raise HTTPException(detail="incorrect_name_or_password", status_code=404)
+        raise HTTPException(detail="incorrect_name_or_password", status_code=401)
 
     token = make_jwt_token(user.login)
 
     return LoginResponse(access_token=token, token_type="bearer", expires_in=15 * 60)
+
