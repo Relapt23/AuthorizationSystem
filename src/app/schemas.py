@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 
 
 class RegisterParams(BaseModel):
-    login: EmailStr
+    email: EmailStr
     password: str
 
 

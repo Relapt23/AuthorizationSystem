@@ -55,7 +55,7 @@ async def client(test_session):
 @pytest.mark.asyncio
 async def test_register_success(client, test_session):
     # given
-    register_params = {"login": "test@example.com", "password": "1234"}
+    register_params = {"email": "test@example.com", "password": "1234"}
 
     # when
     response = await client.post("/register", json=register_params)
@@ -63,7 +63,7 @@ async def test_register_success(client, test_session):
 
     db_user = (
         await test_session.execute(
-            select(UserInfo).where(UserInfo.login == register_params["login"])
+            select(UserInfo).where(UserInfo.email == register_params["email"])
         )
     ).scalar_one_or_none()
 
@@ -71,14 +71,14 @@ async def test_register_success(client, test_session):
     assert response.status_code == 201
     assert data == {"message": "Success!"}
     assert db_user is not None
-    assert db_user.login == register_params["login"]
+    assert db_user.email == register_params["email"]
     assert pwd_context.verify(register_params["password"], db_user.password)
 
 
 @pytest.mark.asyncio
 async def test_register_duplicate(client):
     # given
-    register_params = {"login": "test@example.com", "password": "1234"}
+    register_params = {"email": "test@example.com", "password": "1234"}
 
     # when
     response = await client.post("/register", json=register_params)
@@ -93,27 +93,27 @@ async def test_register_duplicate(client):
 @pytest.mark.asyncio
 async def test_login_success(client, test_session, monkeypatch):
     # given
-    register_params = {"login": "test@example.com", "password": "1234"}
+    login_params = {"email": "test@example.com", "password": "1234"}
     test_session.add(
         UserInfo(
-            login=register_params["login"],
-            password=pwd_context.hash(register_params["password"]),
+            email=login_params["email"],
+            password=pwd_context.hash(login_params["password"]),
         )
     )
     await test_session.commit()
 
-    def fake_make_jwt_token(username: str) -> str:
-        assert username == register_params["login"]
+    def fake_make_jwt_token(email: str) -> str:
+        assert email == login_params["email"]
         return "fake.jwt.token"
 
     monkeypatch.setattr("src.app.endpoints.make_jwt_token", fake_make_jwt_token)
 
     # when
-    response = await client.post("/login", json=register_params)
+    response = await client.post("/login", json=login_params)
     data = response.json()
 
     db_user = await test_session.scalar(
-        select(UserInfo).where(UserInfo.login == register_params["login"])
+        select(UserInfo).where(UserInfo.email == login_params["email"])
     )
 
     # then
@@ -127,10 +127,10 @@ async def test_login_success(client, test_session, monkeypatch):
 @pytest.mark.asyncio
 async def test_login_user_not_found(client):
     # given
-    register_params = {"login": "nouser@example.com", "password": "incorrect"}
+    login_params = {"email": "nouser@example.com", "password": "incorrect"}
 
     # when
-    response = await client.post("/login", json=register_params)
+    response = await client.post("/login", json=login_params)
     data = response.json()
 
     # then
@@ -141,14 +141,14 @@ async def test_login_user_not_found(client):
 @pytest.mark.asyncio
 async def test_login_incorrect_password(client, test_session):
     # given
-    register_params = {"login": "test@example.com", "password": "incorrect"}
+    login_params = {"email": "test@example.com", "password": "incorrect"}
     test_session.add(
-        UserInfo(login="test@example.com", password=pwd_context.hash("correct"))
+        UserInfo(email="test@example.com", password=pwd_context.hash("correct"))
     )
     await test_session.commit()
 
     # when
-    response = await client.post("/login", json=register_params)
+    response = await client.post("/login", json=login_params)
     data = response.json()
 
     # then
