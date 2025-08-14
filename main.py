@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from src.app import endpoints
+from src.app.security import jwks
 from contextlib import asynccontextmanager
 from src.db.db_config import init_db
 
@@ -12,4 +13,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(endpoints.router)
+api = APIRouter()
+api.include_router(endpoints.router)
+api.include_router(jwks.router)
+
+app.include_router(api)

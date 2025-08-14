@@ -8,5 +8,5 @@ class Base(DeclarativeBase):
 class UserInfo(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
-    login: Mapped[str]
+    email: Mapped[str]
     password: Mapped[str]

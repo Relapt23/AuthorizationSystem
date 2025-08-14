@@ -28,3 +28,5 @@ archive.zip
 # macOS
 .DS_Store# created by virtualenv automatically
 .venv/bin
+src/app/security/keys/jwt_private.pem
+src/app/security/keys/jwt_public.pem
