@@ -30,4 +30,3 @@ archive.zip
 .venv/bin
 src/app/security/keys/jwt_private.pem
 src/app/security/keys/jwt_public.pem
-app_example/main.py
